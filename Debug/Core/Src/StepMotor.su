@@ -1,0 +1,3 @@
+StepMotor.c:18:6:InitMotor	8	static
+StepMotor.c:22:6:Start	16	static
+StepMotor.c:35:6:TurnSingleMotor	16	static

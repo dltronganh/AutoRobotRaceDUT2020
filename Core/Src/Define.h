@@ -1,0 +1,45 @@
+/*
+ * Define.h
+ *
+ *  Created on: Oct 1, 2020
+ *      Author: DELL
+ */
+
+#ifndef SRC_DEFINE_H_
+#define SRC_DEFINE_H_
+
+//----------Define for motor 1---------
+#define M1DirPort	GPIOB
+#define M1DirPin	GPIO_PIN_13
+#define M1StepPort 	GPIOD
+#define M1StepPin	GPIO_PIN_13
+#define M1EnPort	GPIOD
+#define M1EnPin		GPIO_PIN_9
+
+#define M1MS1Port	GPIOD
+#define M1MS1Pin	GPIO_PIN_13
+#define M1MS2Port	GPIOD
+#define M1MS2Pin	GPIO_PIN_11
+#define M1MS3Port	GPIOD
+#define M1MS3Pin	GPIO_PIN_9
+
+//----------Define for motor 2---------
+#define M2DirPort	GPIOD
+#define M2DirPin	GPIO_PIN_10
+#define M2StepPort	GPIOD
+#define M2StepPin	GPIO_PIN_12
+#define M2EnPort	GPIOD
+#define M2EnPin		GPIO_PIN_14
+
+#define M2MS1Port	GPIOB
+#define M2MS1Pin	GPIO_PIN_12
+#define M2MS2Port	GPIOB
+#define M2MS2Pin	GPIO_PIN_14
+#define M2MS3Port	GPIOD
+#define M2MS3Pin	GPIO_PIN_8
+
+//----------General Define---------
+#define BACK 0
+#define AHEAD 1
+
+#endif /* SRC_DEFINE_H_ */
