@@ -9,19 +9,19 @@
 #define SRC_DEFINE_H_
 
 //----------Define for motor 1---------
-#define M1DirPort	GPIOB
-#define M1DirPin	GPIO_PIN_13
+#define M1DirPort	GPIOD
+#define M1DirPin	GPIO_PIN_11
 #define M1StepPort 	GPIOD
-#define M1StepPin	GPIO_PIN_13
+#define M1StepPin	GPIO_PIN_12
 #define M1EnPort	GPIOD
 #define M1EnPin		GPIO_PIN_9
 
-#define M1MS1Port	GPIOD
-#define M1MS1Pin	GPIO_PIN_13
-#define M1MS2Port	GPIOD
-#define M1MS2Pin	GPIO_PIN_11
+#define M1MS1Port	GPIOB
+#define M1MS1Pin	GPIO_PIN_15
+#define M1MS2Port	GPIOB
+#define M1MS2Pin	GPIO_PIN_13
 #define M1MS3Port	GPIOD
-#define M1MS3Pin	GPIO_PIN_9
+#define M1MS3Pin	GPIO_PIN_15
 
 //----------Define for motor 2---------
 #define M2DirPort	GPIOD
