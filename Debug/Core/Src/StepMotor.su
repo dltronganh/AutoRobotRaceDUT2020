@@ -1,4 +1,9 @@
-StepMotor.c:31:6:InitMotor	8	static
-StepMotor.c:41:6:Start	56	static
-StepMotor.c:64:6:TurnSingleMotor	16	static
-StepMotor.c:73:6:SetStepMotor	8	static
+StepMotor.c:13:6:InitAutoCar	24	static
+StepMotor.c:22:6:SetSpeedMPin	16	static
+StepMotor.c:28:6:SetSpeedM	16	static
+StepMotor.c:43:6:SetSpeed	24	static
+StepMotor.c:49:6:InitMotor	16	static
+StepMotor.c:61:6:SetStepMotor	16	static
+StepMotor.c:65:6:SetStepMotorContinue	16	static
+StepMotor.c:69:6:RunCar	16	static
+StepMotor.c:81:6:RunningCar	16	static

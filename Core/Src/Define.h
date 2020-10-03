@@ -7,6 +7,12 @@
 
 #ifndef SRC_DEFINE_H_
 #define SRC_DEFINE_H_
+#include "main.h"
+
+//----------General Define---------
+#define BACK 0
+#define AHEAD 1
+#define NUM_OF_MOTOR 2
 
 //----------Define for motor 1---------
 #define M1DirPort	GPIOD
@@ -38,8 +44,32 @@
 #define M2MS3Port	GPIOD
 #define M2MS3Pin	GPIO_PIN_8
 
-//----------General Define---------
-#define BACK 0
-#define AHEAD 1
+//---------Typedef for motor---------
+typedef struct {
+	GPIO_TypeDef *DirPort;
+	GPIO_TypeDef *StepPort;
+	GPIO_TypeDef *EnPort;
+
+	uint16_t DirPin;
+	uint16_t StepPin;
+	uint16_t EnPin;
+
+	GPIO_TypeDef *MS1Port;
+	uint16_t MS1Pin;
+
+	GPIO_TypeDef *MS2Port;
+	uint16_t MS2Pin;
+
+	GPIO_TypeDef *MS3Port;
+	uint16_t MS3Pin;
+} pin;
+
+typedef struct {
+	pin Pin;
+	uint8_t Ahead; //which of Dir Pin will make the motor go ahead
+	uint32_t Steps;//remain Step, positive to go ahead, negative to go back
+	uint8_t Num;
+} StepMotor;
+
 
 #endif /* SRC_DEFINE_H_ */

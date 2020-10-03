@@ -1,85 +1,89 @@
 #ifndef StepMotorCPP
 #define StepMotorCPP
-
 #include "StepMotor.h"
 
-typedef struct {
-	GPIO_TypeDef *DirPort;
-	GPIO_TypeDef *StepPort;
-	GPIO_TypeDef *EnPort;
+int8_t NumOfNextMotor = 0;
+int32_t StepPendingOfMotors[NUM_OF_MOTOR] = { }; //maximum 10 motor can turn now
+uint8_t RunningMotor[NUM_OF_MOTOR]={};
 
-	uint16_t DirPin;
-	uint16_t StepPin;
-	uint16_t EnPin;
+StepMotor *MotorArray[NUM_OF_MOTOR] = { };
 
-	GPIO_TypeDef *MS1Port;
-	uint16_t MS1Pin;
+uint8_t *Running; //if 1: running, 0: stop
 
-	GPIO_TypeDef *MS2Port;
-	uint16_t MS2Pin;
-
-	GPIO_TypeDef *MS3Port;
-	uint16_t MS3Pin;
-} pin;
-
-typedef struct {
-	pin Pin;
-	uint8_t Ahead; //which of Dir Pin will make the motor go ahead
-	uint32_t Steps;
-} StepMotor;
-
-void InitMotor(StepMotor M) {
-	HAL_GPIO_WritePin(M.Pin.EnPort, M.Pin.EnPin, 0); //enable
-
-	HAL_GPIO_WritePin(M.Pin.MS1Port, M.Pin.MS1Pin, 0); //set to speed 1 step
-	HAL_GPIO_WritePin(M.Pin.MS2Port, M.Pin.MS2Pin, 0);
-	HAL_GPIO_WritePin(M.Pin.MS3Port, M.Pin.MS3Pin, 0);
-
-	M.Steps = 0;
+void InitAutoCar(uint8_t *running) {
+	Running = running;
+	*Running = 0;
+	for (int i = 0; i < NUM_OF_MOTOR; i++) {
+		StepPendingOfMotors[i] = 0;
+		RunningMotor[i] = 0;
+	}
 }
 
-void Start(StepMotor M, pin Pin, uint8_t ahead) {
-	M.Pin.DirPort = Pin.DirPort;
-	M.Pin.DirPin = Pin.DirPin;
-
-	M.Pin.StepPort = Pin.StepPort;
-	M.Pin.StepPin = Pin.StepPin;
-
-	M.Pin.EnPort = Pin.EnPort;
-	M.Pin.EnPin = Pin.EnPin;
-
-	M.Pin.MS1Port = Pin.MS1Port;
-	M.Pin.MS1Pin = Pin.MS1Pin;
-
-	M.Pin.MS2Port = Pin.MS2Port;
-	M.Pin.MS2Pin = Pin.MS2Pin;
-
-	M.Pin.MS3Port = Pin.MS3Port;
-	M.Pin.MS3Pin = Pin.MS3Pin;
-
-	M.Ahead = ahead;
-	InitMotor(M);
+void SetSpeedMPin(StepMotor *M, uint8_t MS1, uint8_t MS2, uint8_t MS3) {
+	HAL_GPIO_WritePin(M->Pin.MS1Port, M->Pin.MS1Pin, MS1);
+	HAL_GPIO_WritePin(M->Pin.MS2Port, M->Pin.MS2Pin, MS2);
+	HAL_GPIO_WritePin(M->Pin.MS3Port, M->Pin.MS3Pin, MS3);
 }
 
-//void TurnSingleMotor(StepMotor M, uint8_t direction, float angle) { //1 is ahead, 0 is back
-//	if (direction == AHEAD)
-//		direction = M.Ahead;
-//	else if (direction == BACK)
-//		direction = 1 - M.Ahead;
-//
-//	HAL_GPIO_WritePin(M.Pin.DirPort, M.Pin.DirPin, direction);
-//}
-
-void SetSpeed(uint16_t speeds){
-
+void SetSpeedM(StepMotor *M, uint16_t speed) { //1 is slowest, 5 is fastest
+	switch (speed) {
+	case 1:
+		SetSpeedMPin(M, 1, 1, 1);	//1/16 step
+	case 2:
+		SetSpeedMPin(M, 1, 1, 0);	//1/8 step
+	case 3:
+		SetSpeedMPin(M, 0, 1, 0);	//1/4 step
+	case 4:
+		SetSpeedMPin(M, 1, 0, 0);	//1/2 step
+	case 5:
+		SetSpeedMPin(M, 0, 0, 0);	//1 step
+	}
 }
 
-void SetStepMotor(StepMotor M, int32_t steps) {//if step < 0, then motor comback
-
+void SetSpeed(uint16_t speed) {	//set speed for all Motor
+	for (int i = 0; i < NUM_OF_MOTOR; i++) {
+		SetSpeedM(MotorArray[i], speed);
+	}
 }
 
-void RunMotor(){
+void InitMotor(StepMotor *M, uint8_t ahead) {
+	HAL_GPIO_WritePin(M->Pin.EnPort, M->Pin.EnPin, 0); //enable
+	SetSpeedM(M, 5); //set full speed of Motor
 
+	M->Steps = 0;
+	M->Ahead = ahead;
+
+	MotorArray[NumOfNextMotor] = M;
+	M->Num = NumOfNextMotor;
+	NumOfNextMotor++;
+}
+
+void SetStepMotor(StepMotor *M, int32_t steps) { //if step < 0, then motor comback
+	StepPendingOfMotors[M->Num] = steps;
+}
+
+void SetStepMotorContinue(StepMotor *M, int32_t steps) { //When you want to plus more step for motor to run continue or for a long routine
+	StepPendingOfMotors[M->Num] += steps;
+}
+
+void RunCar() {
+	for (int i = 0; i < NUM_OF_MOTOR; i++){
+		MotorArray[i]->Steps = StepPendingOfMotors[i];
+		if (StepPendingOfMotors[i] != 0) RunningMotor[i] = 1;
+		if (StepPendingOfMotors[i] < 0) //back
+			HAL_GPIO_WritePin(MotorArray[i]->Pin.DirPort, MotorArray[i]->Pin.DirPin, (1 - MotorArray[i]->Ahead));
+		else if (StepPendingOfMotors[i] > 0) //ahead
+			HAL_GPIO_WritePin(MotorArray[i]->Pin.DirPort, MotorArray[i]->Pin.DirPin, (MotorArray[i]->Ahead));
+	}
+	*Running = 1; //For Running Status
+}
+
+void RunningCar(){ //this void use to check if Step variable in Motor is zero or not? if not, take action
+	for(int i = 0; i < NUM_OF_MOTOR; i++){
+//		if (){
+
+//		}
+	}
 }
 
 #endif
